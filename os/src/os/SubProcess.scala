@@ -145,7 +145,7 @@ object SubProcess{
       * Read all bytes from this pipe from the subprocess, blocking until it is
       * complete, and returning it as a byte array
       */
-    def bytes(): Array[Byte] = synchronized{
+    def bytes: Array[Byte] = synchronized{
       val out = new ByteArrayOutputStream()
       Internals.transfer(this, out)
       out.toByteArray

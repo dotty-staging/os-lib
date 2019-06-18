@@ -28,7 +28,7 @@ object temp{
             perms: PermSet = null): Path = {
     import collection.JavaConverters._
     val permArray =
-      if (perms == null) Array[FileAttribute[PosixFilePermission]]()
+      if (perms == null) Array[FileAttribute[java.util.Set[PosixFilePermission]]]()
       else Array(PosixFilePermissions.asFileAttribute(perms.toSet()))
 
     val nioPath = dir match{
@@ -54,7 +54,7 @@ object temp{
           deleteOnExit: Boolean = true,
           perms: PermSet = null): Path = {
     val permArray =
-      if (perms == null) Array[FileAttribute[PosixFilePermission]]()
+      if (perms == null) Array[FileAttribute[java.util.Set[PosixFilePermission]]]()
       else Array(PosixFilePermissions.asFileAttribute(perms.toSet()))
 
     val nioPath = dir match{

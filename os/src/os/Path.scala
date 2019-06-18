@@ -246,7 +246,7 @@ object RelPath {
   }
 
   implicit def IterablePath[T](s: Iterable[T])(implicit conv: T => RelPath): RelPath = {
-    s.foldLeft(rel){_ / _}
+    s.foldLeft(rel){_ / conv(_)}
   }
 
   implicit def ArrayPath[T](s: Array[T])(implicit conv: T => RelPath): RelPath = IterablePath(s)

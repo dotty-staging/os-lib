@@ -54,7 +54,7 @@ object write{
 
     import collection.JavaConverters._
     val permArray =
-      if (perms == null) Array[FileAttribute[PosixFilePermission]]()
+      if (perms == null) Array[FileAttribute[java.util.Set[PosixFilePermission]]]()
       else Array(PosixFilePermissions.asFileAttribute(perms.toSet()))
 
     val out = Files.newByteChannel(

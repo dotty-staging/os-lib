@@ -26,8 +26,8 @@ class OsModule(val crossScalaVersion: String) extends CrossScalaModule with Publ
 
   object test extends Tests {
     def ivyDeps = Agg(
-      ivy"com.lihaoyi::utest::0.7.1",
-      ivy"com.lihaoyi::sourcecode::0.1.7"
+      ivy"com.lihaoyi:utest_2.12::0.7.1",
+      ivy"com.lihaoyi:sourcecode_2.12::0.1.7"
     )
 
     def testFrameworks = Seq("utest.runner.Framework")
