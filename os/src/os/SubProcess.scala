@@ -1,5 +1,7 @@
 package os
 
+import scala.language.implicitConversions
+
 import java.io._
 import java.nio.charset.{Charset, StandardCharsets}
 import java.util.concurrent.TimeUnit

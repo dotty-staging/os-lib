@@ -1,5 +1,7 @@
 package os
 
+import scala.language.implicitConversions
+
 import java.io.{ByteArrayInputStream, InputStream, OutputStream, SequenceInputStream}
 import java.nio.channels.{Channels, FileChannel, ReadableByteChannel, SeekableByteChannel}
 
@@ -10,7 +12,7 @@ import java.nio.channels.{Channels, FileChannel, ReadableByteChannel, SeekableBy
   * strings, byte arrays, inputstreams, channels or file paths
   */
 trait Source{
-  def getInputStream(): java.io.InputStream = getHandle match{
+  def getInputStream(): java.io.InputStream = getHandle() match{
     case Left(is) => is
     case Right(bc) => Channels.newInputStream(bc)
   }
@@ -25,7 +27,7 @@ object Source extends WritableLowPri{
     def getHandle() = Left(is)
   }
 
-  implicit def StringSource(s: String) = new Source{
+  implicit def StringSource(s: String): Source = new Source{
     def getHandle() = Left(new ByteArrayInputStream(s.getBytes("UTF-8")))
   }
   implicit def BytesSource(a: Array[Byte]): Source = new Source{
@@ -35,7 +37,7 @@ object Source extends WritableLowPri{
 trait WritableLowPri {
   implicit def WritableGenerator[M[_], T](a: M[T])
                                          (implicit f: T => Source,
-                                          g: M[T] => TraversableOnce[T]) = {
+                                          g: M[T] => TraversableOnce[T]): Source = {
     new Source {
       def getHandle() = Left{
         import collection.JavaConverters._
@@ -52,7 +54,7 @@ trait WritableLowPri {
   */
 trait SeekableSource extends Source{
   def getHandle(): Right[java.io.InputStream, SeekableByteChannel]
-  def getChannel() = getHandle.right.get
+  def getChannel() = getHandle().right.get
 }
 
 object SeekableSource{

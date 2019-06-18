@@ -26,7 +26,7 @@ object makeDir extends Function1[Path, Unit]{
   def apply(path: Path, perms: PermSet): Unit = {
     Files.createDirectory(
       path.wrapped,
-      PosixFilePermissions.asFileAttribute(perms.toSet)
+      PosixFilePermissions.asFileAttribute(perms.toSet())
     )
   }
   /**
@@ -46,7 +46,7 @@ object makeDir extends Function1[Path, Unit]{
       else {
         Files.createDirectories(
           path.wrapped,
-          PosixFilePermissions.asFileAttribute(perms.toSet)
+          PosixFilePermissions.asFileAttribute(perms.toSet())
         )
       }
     }
@@ -259,7 +259,7 @@ object symlink {
   def apply(link: Path, dest: FilePath, perms: PermSet = null): Unit = {
     val permArray =
       if (perms == null) Array[FileAttribute[_]]()
-      else Array(PosixFilePermissions.asFileAttribute(perms.toSet))
+      else Array(PosixFilePermissions.asFileAttribute(perms.toSet()))
 
     Files.createSymbolicLink(
       link.toNIO,

@@ -1,5 +1,7 @@
 package os
 
+import scala.language.implicitConversions
+
 import collection.JavaConverters._
 
 

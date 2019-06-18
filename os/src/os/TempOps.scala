@@ -29,7 +29,7 @@ object temp{
     import collection.JavaConverters._
     val permArray =
       if (perms == null) Array[FileAttribute[PosixFilePermission]]()
-      else Array(PosixFilePermissions.asFileAttribute(perms.toSet))
+      else Array(PosixFilePermissions.asFileAttribute(perms.toSet()))
 
     val nioPath = dir match{
       case null => java.nio.file.Files.createTempFile(prefix, suffix, permArray:_*)
@@ -55,7 +55,7 @@ object temp{
           perms: PermSet = null): Path = {
     val permArray =
       if (perms == null) Array[FileAttribute[PosixFilePermission]]()
-      else Array(PosixFilePermissions.asFileAttribute(perms.toSet))
+      else Array(PosixFilePermissions.asFileAttribute(perms.toSet()))
 
     val nioPath = dir match{
       case null => java.nio.file.Files.createTempDirectory(prefix, permArray:_*)

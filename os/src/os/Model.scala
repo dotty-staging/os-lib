@@ -1,5 +1,7 @@
 package os
 
+import scala.language.implicitConversions
+
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, LinkOption, Paths}
 import java.nio.file.attribute._

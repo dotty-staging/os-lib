@@ -142,7 +142,7 @@ case class proc(command: Shellable*) {
     // inWriter. If the out/err readers and process are all dead, it doesn't
     // matter if there's more stuff waiting to be sent to the process's stdin:
     // it's already all over
-    while ((outReader.isAlive || errReader.isAlive || process.isAlive)
+    while ((outReader.isAlive() || errReader.isAlive() || process.isAlive())
            && System.currentTimeMillis() - startTime < timeout){
       callbackQueue.poll(1, TimeUnit.MILLISECONDS) match{
         case null => // do nothing

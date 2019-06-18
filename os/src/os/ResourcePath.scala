@@ -1,5 +1,7 @@
 package os
 
+import scala.language.implicitConversions
+
 import java.io.InputStream
 
 

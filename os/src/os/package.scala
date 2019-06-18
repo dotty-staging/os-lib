@@ -1,3 +1,4 @@
+import scala.language.implicitConversions
 
 package object os{
   type Generator[+T] = geny.Generator[T]

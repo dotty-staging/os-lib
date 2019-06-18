@@ -1,5 +1,7 @@
 package os
 
+import scala.language.implicitConversions
+
 import java.io.{BufferedReader, InputStreamReader}
 import java.nio.ByteBuffer
 import java.nio.channels.{Channels, FileChannel, SeekableByteChannel}
@@ -30,7 +32,7 @@ object write{
     if (perms != null && !exists(target)){
       val permArray =
         if (perms == null) Array[FileAttribute[PosixFilePermission]]()
-        else Array(PosixFilePermissions.asFileAttribute(perms.toSet))
+        else Array(PosixFilePermissions.asFileAttribute(perms.toSet()))
       java.nio.file.Files.createFile(target.toNIO, permArray:_*)
     }
     java.nio.file.Files.newOutputStream(
@@ -53,7 +55,7 @@ object write{
     import collection.JavaConverters._
     val permArray =
       if (perms == null) Array[FileAttribute[PosixFilePermission]]()
-      else Array(PosixFilePermissions.asFileAttribute(perms.toSet))
+      else Array(PosixFilePermissions.asFileAttribute(perms.toSet()))
 
     val out = Files.newByteChannel(
       target.wrapped,
