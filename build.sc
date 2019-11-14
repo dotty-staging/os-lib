@@ -1,9 +1,7 @@
 import mill._, scalalib._, publish._
 
-object os extends Cross[OsModule]("2.12.7", "2.13.0", "0.16.0-RC3")
-class OsModule(val crossScalaVersion: String) extends CrossScalaModule with PublishModule{
-  def artifactName = "os-lib"
-  def publishVersion = "0.3.0"
+trait OsLibModule extends CrossScalaModule with PublishModule{
+  def publishVersion = "0.4.2"
   def pomSettings = PomSettings(
     description = artifactName(),
     organization = "com.lihaoyi",
@@ -18,13 +16,10 @@ class OsModule(val crossScalaVersion: String) extends CrossScalaModule with Publ
     )
   )
 
-  // def compileIvyDeps = Agg(ivy"com.lihaoyi::acyclic:0.2.0")
-  // def scalacOptions = Seq("-P:acyclic:force")
-  // def scalacPluginIvyDeps = Agg(ivy"com.lihaoyi::acyclic:0.2.0")
-
-  def ivyDeps = Agg(ivy"com.lihaoyi:geny_2.12:0.1.8")
-
-  object test extends Tests {
+  def compileIvyDeps = Agg(ivy"com.lihaoyi::acyclic:0.2.0")
+  def scalacOptions = Seq("-P:acyclic:force")
+  def scalacPluginIvyDeps = Agg(ivy"com.lihaoyi::acyclic:0.2.0")
+  trait OsLibTestModule extends Tests{
     def ivyDeps = Agg(
       ivy"com.lihaoyi:utest_2.12::0.7.1",
       ivy"com.lihaoyi:sourcecode_2.12::0.1.7"
@@ -32,4 +27,29 @@ class OsModule(val crossScalaVersion: String) extends CrossScalaModule with Publ
 
     def testFrameworks = Seq("utest.runner.Framework")
   }
+}
+object os extends Cross[OsModule]("2.12.7", "2.13.0"){
+  object watch extends Cross[WatchModule]("2.12.7", "2.13.0")
+  class WatchModule(val crossScalaVersion: String) extends OsLibModule{
+    def artifactName = "os-lib-watch"
+    def moduleDeps = Seq(os())
+    def ivyDeps = Agg(
+      ivy"net.java.dev.jna:jna:5.0.0"
+    )
+
+
+    object test extends OsLibTestModule {
+      def moduleDeps = super.moduleDeps ++ Seq(os().test)
+    }
+  }
+
+}
+class OsModule(val crossScalaVersion: String) extends OsLibModule{
+  def artifactName = "os-lib"
+
+  def ivyDeps = Agg(
+    ivy"com.lihaoyi::geny:0.1.8"
+  )
+
+  object test extends OsLibTestModule
 }

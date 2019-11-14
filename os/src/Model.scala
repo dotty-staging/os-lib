@@ -255,36 +255,6 @@ object Shellable{
     Shellable(s.flatMap(f(_).value))
 }
 
-
-/**
-  * The result from doing an system `stat` on a particular path.
-  *
-  * Created via `stat! filePath`.
-  *
-  * If you want more information, use `stat.full`
-  */
-case class BasicStatInfo(size: Long,
-                         mtime: FileTime,
-                         fileType: FileType){
-  def isDir = fileType == FileType.Dir
-  def isSymLink = fileType == FileType.SymLink
-  def isFile = fileType == FileType.File
-}
-object BasicStatInfo{
-
-  def make(attrs: BasicFileAttributes) = {
-    new BasicStatInfo(
-      attrs.size(),
-      attrs.lastModifiedTime(),
-      if (attrs.isRegularFile) FileType.File
-      else if (attrs.isDirectory) FileType.Dir
-      else if (attrs.isSymbolicLink) FileType.SymLink
-      else if (attrs.isOther) FileType.Other
-      else ???
-    )
-  }
-}
-
 /**
   * The result from doing an system `stat` on a particular path.
   *
@@ -294,8 +264,8 @@ object BasicStatInfo{
   */
 case class StatInfo(size: Long,
                     mtime: FileTime,
-                    owner: UserPrincipal,
-                    permissions: PermSet,
+                    ctime: FileTime,
+                    atime: FileTime,
                     fileType: FileType){
   def isDir = fileType == FileType.Dir
   def isSymLink = fileType == FileType.SymLink
@@ -303,12 +273,12 @@ case class StatInfo(size: Long,
 }
 object StatInfo{
 
-  def make(attrs: BasicFileAttributes, posixAttrs: Option[PosixFileAttributes]) = {
+  def make(attrs: BasicFileAttributes) = {
     new StatInfo(
       attrs.size(),
       attrs.lastModifiedTime(),
-      posixAttrs.map(_.owner).orNull,
-      posixAttrs.map(a => PermSet.fromSet(a.permissions)).orNull,
+      attrs.lastAccessTime(),
+      attrs.creationTime(),
       if (attrs.isRegularFile) FileType.File
       else if (attrs.isDirectory) FileType.Dir
       else if (attrs.isSymbolicLink) FileType.SymLink
@@ -317,40 +287,13 @@ object StatInfo{
     )
   }
 }
-/**
-  * A richer, more informative version of the [[stat]] object.
-  *
-  * Created using `stat.full! filePath`
-  */
-case class FullStatInfo(size: Long,
-                        mtime: FileTime,
-                        ctime: FileTime,
-                        atime: FileTime,
-                        group: GroupPrincipal,
-                        owner: UserPrincipal,
-                        permissions: PermSet,
-                        fileType: FileType){
-  override def productPrefix = "stat.full"
-  def isDir = fileType == FileType.Dir
-  def isSymLink = fileType == FileType.SymLink
-  def isFile = fileType == FileType.File
-}
-object FullStatInfo{
 
-  def make(attrs: BasicFileAttributes, posixAttrs: Option[PosixFileAttributes]) = {
-    new os.FullStatInfo(
-      attrs.size(),
-      attrs.lastModifiedTime(),
-      attrs.lastAccessTime(),
-      attrs.creationTime(),
-      posixAttrs.map(_.group()).orNull,
-      posixAttrs.map(_.owner()).orNull,
-      posixAttrs.map(a => PermSet.fromSet(a.permissions)).orNull,
-      if (attrs.isRegularFile) FileType.File
-      else if (attrs.isDirectory) FileType.Dir
-      else if (attrs.isSymbolicLink) FileType.SymLink
-      else if (attrs.isOther) FileType.Other
-      else ???
+case class PosixStatInfo(owner: UserPrincipal, permissions: PermSet)
+object PosixStatInfo{
+  def make(posixAttrs: PosixFileAttributes) = {
+    PosixStatInfo(
+      posixAttrs.owner,
+      PermSet.fromSet(posixAttrs.permissions)
     )
   }
 }

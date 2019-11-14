@@ -1,6 +1,9 @@
 package test.os
 
 import java.io.{BufferedReader, InputStreamReader}
+import os.ProcessOutput
+
+import scala.collection.mutable
 
 import test.os.TestUtil.prep
 import utest._
@@ -38,7 +41,7 @@ object SpawningSubprocessesTests extends TestSuite {
 
           assert(thrown.result.exitCode != 0)
 
-          val fail = os.proc('ls, "doesnt-exist").call(cwd = wd, check = false)
+          val fail = os.proc('ls, "doesnt-exist").call(cwd = wd, check = false, stderr = os.Pipe)
 
           assert(fail.exitCode != 0)
 
@@ -59,18 +62,38 @@ object SpawningSubprocessesTests extends TestSuite {
             os.proc("vim").call(stdin = os.Inherit, stdout = os.Inherit, stderr = os.Inherit)
           }
         }}
+        test - prep{wd =>if(Unix()){
+          val ex = intercept[os.SubprocessException]{
+            os.proc("bash", "-c", "echo 123; sleep 10; echo 456")
+              .call(timeout = 2000)
+          }
+
+          ex.result.out.trim ==> "123"
+        }}
       }
       test("stream"){
         test - prep { wd => if(Unix()){
           var lineCount = 1
-          os.proc('find, ".").stream(
+          os.proc('find, ".").call(
             cwd = wd,
-            onOut = (buf, len) => lineCount += buf.slice(0, len).count(_ == '\n'),
-            onErr = (buf, len) => () // do nothing
+            stdout = os.ProcessOutput(
+              (buf, len) => lineCount += buf.slice(0, len).count(_ == '\n')
+            ),
+          )
+          lineCount ==> 22
+        }}
+        test - prep { wd => if(Unix()){
+          var lineCount = 1
+          os.proc('find, ".").call(
+            cwd = wd,
+            stdout = os.ProcessOutput.Readlines(
+              line => lineCount += 1
+            ),
           )
           lineCount ==> 22
         }}
       }
+
       test("spawn"){
         test - prep { wd => if(TestUtil.isInstalled("python") && Unix()) {
           // Start a long-lived python process which you can communicate with
@@ -101,6 +124,17 @@ object SpawningSubprocessesTests extends TestSuite {
           val gzip = os.proc("gzip", "-n").spawn(stdin = curl.stdout)
           val sha = os.proc("shasum", "-a", "256").spawn(stdin = gzip.stdout)
           sha.stdout.trim ==> "acc142175fa520a1cb2be5b97cbbe9bea092e8bba3fe2e95afa645615908229e  -"
+        }}
+      }
+      test("spawn callback"){
+        test - prep { wd => if(TestUtil.isInstalled("python") && Unix()) {
+          val output: mutable.Buffer[String] = mutable.Buffer()
+          val sub = os.proc("echo", "output")
+            .spawn(stdout = ProcessOutput((bytes, count) => output += new String(bytes, 0, count)))
+          val finished = sub.waitFor(5000)
+          assert(finished)
+          assert(output.mkString("") == "output\n")
+          sub.destroy()
         }}
       }
     }
