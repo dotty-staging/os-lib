@@ -14,7 +14,7 @@ object SpawningSubprocessesTests extends TestSuite {
     test("proc"){
       test("call"){
         test - prep { wd => if(Unix()){
-          val res = os.proc('ls, wd/"folder2").call()
+          val res = os.proc("ls", wd/"folder2").call()
 
           res.exitCode ==> 0
 
@@ -36,12 +36,12 @@ object SpawningSubprocessesTests extends TestSuite {
 
 
           val thrown = intercept[os.SubprocessException]{
-            os.proc('ls, "doesnt-exist").call(cwd = wd)
+            os.proc("ls", "doesnt-exist").call(cwd = wd)
           }
 
           assert(thrown.result.exitCode != 0)
 
-          val fail = os.proc('ls, "doesnt-exist").call(cwd = wd, check = false, stderr = os.Pipe)
+          val fail = os.proc("ls", "doesnt-exist").call(cwd = wd, check = false, stderr = os.Pipe)
 
           assert(fail.exitCode != 0)
 
@@ -74,7 +74,7 @@ object SpawningSubprocessesTests extends TestSuite {
       test("stream"){
         test - prep { wd => if(Unix()){
           var lineCount = 1
-          os.proc('find, ".").call(
+          os.proc("find", ".").call(
             cwd = wd,
             stdout = os.ProcessOutput(
               (buf, len) => lineCount += buf.slice(0, len).count(_ == '\n')
@@ -84,7 +84,7 @@ object SpawningSubprocessesTests extends TestSuite {
         }}
         test - prep { wd => if(Unix()){
           var lineCount = 1
-          os.proc('find, ".").call(
+          os.proc("find", ".").call(
             cwd = wd,
             stdout = os.ProcessOutput.Readlines(
               line => lineCount += 1
