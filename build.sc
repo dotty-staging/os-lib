@@ -16,13 +16,26 @@ trait OsLibModule extends CrossScalaModule with PublishModule{
     )
   )
 
-  // def compileIvyDeps = Agg(ivy"com.lihaoyi::acyclic:0.2.0")
-  // def scalacOptions = Seq("-P:acyclic:force")
-  // def scalacPluginIvyDeps = Agg(ivy"com.lihaoyi::acyclic:0.2.0")
+  def compileIvyDeps =
+    if (crossScalaVersion.startsWith("2")) Agg(ivy"com.lihaoyi::acyclic:0.2.0")
+    else Agg.empty[mill.scalalib.Dep]
+
+  def scalacOptions =
+    if (crossScalaVersion.startsWith("2")) Seq("-P:acyclic:force")
+    else Nil
+
+  def scalacPluginIvyDeps =
+    if (crossScalaVersion.startsWith("2")) Agg(ivy"com.lihaoyi::acyclic:0.2.0")
+    else Agg.empty[mill.scalalib.Dep]
+
   trait OsLibTestModule extends Tests{
+    val sourcecodeVersion =
+      if (crossScalaVersion.startsWith("2")) "0.1.7"
+      else "0.1.8"
+
     def ivyDeps = Agg(
       ivy"com.lihaoyi::utest::0.7.1",
-      ivy"com.lihaoyi::sourcecode::0.1.8"
+      ivy"com.lihaoyi::sourcecode::$sourcecodeVersion"
     )
 
     def testFrameworks = Seq("utest.runner.Framework")
@@ -47,9 +60,11 @@ object os extends Cross[OsModule]("2.12.7", "2.13.0", "0.21.0-bin-SNAPSHOT"){
 class OsModule(val crossScalaVersion: String) extends OsLibModule{
   def artifactName = "os-lib"
 
-  def ivyDeps = Agg(
-    ivy"com.lihaoyi:geny_2.13:0.1.8"
-  )
+  def ivyDeps =
+    if (crossScalaVersion.startsWith("2"))
+      Agg(ivy"com.lihaoyi::geny:0.1.8")
+    else
+      Agg(ivy"com.lihaoyi:geny_2.13:0.1.8")
 
   object test extends OsLibTestModule
 }
