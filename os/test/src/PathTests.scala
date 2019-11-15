@@ -104,7 +104,7 @@ object PathTests extends TestSuite{
           }
         }
         test("Relativize"){
-          def eq[T](p: T, q: T) = assert(p == q)
+          def eq[T](p: T, q: T): Unit = assert(p == q)
           test - eq(rel/"omg"/"bbq"/"wtf" relativeTo rel/"omg"/"bbq"/"wtf", rel)
           test - eq(rel/"omg"/"bbq" relativeTo rel/"omg"/"bbq"/"wtf", up)
           test - eq(rel/"omg"/"bbq"/"wtf" relativeTo rel/"omg"/"bbq", rel/"wtf")
@@ -277,18 +277,35 @@ object PathTests extends TestSuite{
       test("CannotRelativizeAbsAndRel"){if(Unix()){
         val abs = pwd
         val rel = os.rel/"omg"/"wtf"
-        compileError("""
+        val e1 = compileError("""
           abs relativeTo rel
-        """).check(
+        """)
+        if (TestUtil.isDotty) e1.check(
+          """
+          abs relativeTo rel
+                         ^
+          """.tail,
+          "Required"
+        )
+        else e1.check(
           """
           abs relativeTo rel
                          ^
           """,
           "type mismatch"
         )
-        compileError("""
+
+        val e2 = compileError("""
           rel relativeTo abs
-                     """).check(
+                     """)
+        if (TestUtil.isDotty) e2.check(
+            """
+          rel relativeTo abs
+                         ^
+            """.tail,
+            "Required"
+          )
+        else e2.check(
             """
           rel relativeTo abs
                          ^

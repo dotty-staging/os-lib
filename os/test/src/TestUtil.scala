@@ -22,9 +22,9 @@ object TestUtil {
     } else os.proc(command)
   }
 
-  // 1. when using Git "core.autocrlf true" 
+  // 1. when using Git "core.autocrlf true"
   //    some tests would fail when comparing with only \n
-  // 2. when using Git "core.autocrlf false" 
+  // 2. when using Git "core.autocrlf false"
   //    some tests would fail when comparing with process outputs which produce CRLF strings
   /** Compares two strings, ignoring line-ending style */
   def eqIgnoreNewlineStyle(str1: String, str2: String) = {
@@ -65,5 +65,16 @@ object TestUtil {
     })
 
     f(os.Path(directory.toAbsolutePath))
+  }
+
+  lazy val isDotty = {
+    val cl: ClassLoader = Thread.currentThread().getContextClassLoader
+    try {
+      cl.loadClass("dotty.DottyPredef")
+      true
+    } catch {
+      case _: ClassNotFoundException =>
+        false
+    }
   }
 }

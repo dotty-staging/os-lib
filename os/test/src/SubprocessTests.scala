@@ -47,7 +47,9 @@ object SubprocessTests extends TestSuite{
     test("basicList"){
       val files = List("readme.md", "build.sc")
       val output = proc(lsCmd, files).call().out.string
-      assert(files.forall(output.contains))
+      // TODO cannot write directly in `assert` due to a Dotty bug
+      val condition = files.forall(output.contains)
+      assert(condition)
     }
     test("listMixAndMatch"){
       val stuff = List("I", "am", "bovine")

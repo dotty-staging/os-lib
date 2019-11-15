@@ -270,7 +270,7 @@ object symlink {
         case p: SubPath if p.segments.isEmpty => java.nio.file.Paths.get(".")
         case _ => dest.toNIO
       },
-      permArray:_*
+      permArray.toSeq:_*
     )
   }
 }
