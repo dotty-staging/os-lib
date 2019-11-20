@@ -1,5 +1,9 @@
 import mill._, scalalib._, publish._
 
+object TestUtil {
+  val dottyVersion = Option(sys.props("dottyVersion"))
+}
+
 trait OsLibModule extends CrossScalaModule with PublishModule{
   def publishVersion = "0.4.2"
   def pomSettings = PomSettings(
@@ -41,8 +45,8 @@ trait OsLibModule extends CrossScalaModule with PublishModule{
     def testFrameworks = Seq("utest.runner.Framework")
   }
 }
-object os extends Cross[OsModule]("2.12.7", "2.13.0", "0.21.0-bin-SNAPSHOT"){
-  object watch extends Cross[WatchModule]("2.12.7", "2.13.0", "0.21.0-bin-SNAPSHOT")
+object os extends Cross[OsModule]((List("2.12.7", "2.13.0") ++ TestUtil.dottyVersion): _*){
+  object watch extends Cross[WatchModule]((List("2.12.7", "2.13.0") ++ TestUtil.dottyVersion): _*)
   class WatchModule(val crossScalaVersion: String) extends OsLibModule{
     def artifactName = "os-lib-watch"
     def moduleDeps = Seq(os())
