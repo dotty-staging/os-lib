@@ -1,5 +1,7 @@
 package os
 
+import scala.language.implicitConversions
+
 import java.util.concurrent.{ArrayBlockingQueue, Semaphore, TimeUnit}
 
 import scala.annotation.tailrec

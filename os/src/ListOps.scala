@@ -1,5 +1,7 @@
 package os
 
+import scala.language.implicitConversions
+
 import java.io.IOException
 import java.nio.file
 import java.nio.file.{Path => _, _}

@@ -56,7 +56,8 @@ object Source extends WritableLowPri{
 }
 
 trait WritableLowPri {
-  implicit def WritableGenerator[T](a: geny.Generator[T])(implicit f: T => geny.Writable) = {
+  implicit def WritableGenerator[T](a: geny.Generator[T])
+                                  (implicit f: T => geny.Writable): Source = {
     val f0 = f
     new Source {
       def getHandle() = Left(
@@ -70,7 +71,7 @@ trait WritableLowPri {
   }
   implicit def WritableTraversable[M[_], T](a: M[T])
                                          (implicit f: T => geny.Writable,
-                                          g: M[T] => TraversableOnce[T]) = {
+                                          g: M[T] => TraversableOnce[T]): Source = {
     val traversable = g(a)
     val f0 = f
     new Source {
@@ -90,7 +91,7 @@ trait WritableLowPri {
   */
 trait SeekableSource extends Source{
   def getHandle(): Right[geny.Writable, SeekableByteChannel]
-  def getChannel() = getHandle.right.get
+  def getChannel() = getHandle().right.get
 }
 
 object SeekableSource{
