@@ -1,4 +1,4 @@
-# OS-Lib 0.4.2 [![Build Status][travis-badge]][travis-link] [![Gitter Chat][gitter-badge]][gitter-link] [![Patreon][patreon-badge]][patreon-link]
+# OS-Lib 0.6.2 [![Build Status][travis-badge]][travis-link] [![Gitter Chat][gitter-badge]][gitter-link] [![Patreon][patreon-badge]][patreon-link]
 
 [travis-badge]: https://travis-ci.org/lihaoyi/os-lib.svg
 [travis-link]: https://travis-ci.org/lihaoyi/os-lib
@@ -42,7 +42,7 @@ OS-Lib aims to be a complete replacement for the
 `scala.io` and `scala.sys` APIs. You should not need to drop down to underlying
 Java APIs, as OS-Lib exposes all relevant capabilities in an intuitive and
 performant way. OS-Lib has no dependencies and is unopinionated: it exposes the
-underlying APIs is a concise but straightforward way, without introducing it's
+underlying APIs in a concise but straightforward way, without introducing it's
 own idiosyncrasies, quirks, or clever DSLs.
 
 If you use OS-Lib and like it, please support it by donating to our Patreon:
@@ -152,9 +152,9 @@ To begin using OS-Lib, first add it as a dependency to your project's build:
 
 ```scala
 // SBT
-"com.lihaoyi" %% "os-lib" % "0.4.2"
+"com.lihaoyi" %% "os-lib" % "0.6.2"
 // Mill
-ivy"com.lihaoyi::os-lib:0.4.2"
+ivy"com.lihaoyi::os-lib:0.6.2"
 ```
 
 ## Cookbook
@@ -400,6 +400,27 @@ is.read() ==> 'o'
 is.read() ==> 'w'
 is.read() ==> -1
 is.close()
+```
+
+#### os.read.stream
+
+```scala
+os.read.stream(p: ReadablePath): geny.Readable
+```
+
+Opens a [geny.Readable](https://github.com/lihaoyi/geny#readable) to read from
+the given file. This allows you to stream data to any other library that
+supports `Readable` without buffering the data in memory, e.g. parsing it via
+FastParse, deserializing it via uPickle, uploading it via Requests-Scala, etc.
+
+```scala
+val readable: geny.Readable = os.read.stream(wd / "File.json")
+
+requests.post("https://httpbin.org/post", data = readable)
+
+upickle.default.read(readable)
+
+ujson.read(readable)
 ```
 
 #### os.write
@@ -1982,9 +2003,10 @@ can provide data which you can then use to write, transmit, etc.
 By default, the following types of values can be used where-ever `os.Source`s
 are required:
 
-- `Array[Byte]`
-- `java.lang.String` (these are treated as UTF-8)
-- `java.io.InputStream`
+- Any `geny.Writable` data type:
+    - `Array[Byte]`
+    - `java.lang.String` (these are treated as UTF-8)
+    - `java.io.InputStream`
 - `java.nio.channels.SeekableByteChannel`
 - Any `TraversableOnce[T]` of the above: e.g. `Seq[String]`,
   `List[Array[Byte]]`, etc.
@@ -1994,6 +2016,12 @@ to seek to specific offsets in the data. Only the following types of values can
 be used where `os.SeekableSource` is required:
 
 - `java.nio.channels.SeekableByteChannel`
+
+`os.Source` also supports anything that implements the
+[Writable](https://github.com/lihaoyi/geny#writable) interface, such as
+[ujson.Value](http://www.lihaoyi.com/upickle/#uJson)s,
+[uPickle](http://www.lihaoyi.com/upickle)'s `upickle.default.writable` values,
+or [Scalatags](http://www.lihaoyi.com/scalatags/)'s `Tag`s
 
 You can also convert an `os.Path` or `os.ResourcePath` to an `os.Source` via
 `.toSource`.
@@ -2039,6 +2067,17 @@ string, int or set representations of the `os.PermSet` via:
 - `perms.value: Set[PosixFilePermission]`
 
 ## Changelog
+
+### 0.6.2
+
+- Moved the `os.Bytes`, `os.StreamValue` (now named `ByteData`) interfaces into
+  `geny` package, for sharing with Requests-Scala
+
+- Add `os.read.stream` function, that returns a `geny.Readable`
+
+### 0.5.0
+
+- `os.Source` now supports any data type that is `geny.Writable`
 
 ### 0.4.2
 

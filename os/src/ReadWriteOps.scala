@@ -63,12 +63,7 @@ object write{
       permArray:_*
     )
     out.position(offset)
-    try {
-      data.getHandle().right.toOption.collect{case fcn: FileChannel => fcn} match{
-        case Some(fcn) => fcn.transferTo(0, Long.MaxValue, out)
-        case None => Internals.transfer(data.getInputStream(), Channels.newOutputStream(out))
-      }
-    }
+    try data.writeBytesTo(out)
     finally if (out != null) out.close()
   }
   def apply(target: Path,
@@ -235,7 +230,16 @@ object read extends Function1[ReadablePath, String]{
     * Opens a [[java.io.InputStream]] to read from the given file
     */
   object inputStream extends Function1[ReadablePath, java.io.InputStream]{
-    def apply(p: ReadablePath): java.io.InputStream = p.toSource.getInputStream()
+    def apply(p: ReadablePath): java.io.InputStream = p.getInputStream
+  }
+
+  object stream extends Function1[ReadablePath, geny.Readable]{
+    def apply(p: ReadablePath): geny.Readable = new geny.Readable{
+      def readBytesThrough[T](f: java.io.InputStream => T): T = {
+        val is = p.getInputStream
+        try f(is) finally is.close()
+      }
+    }
   }
 
   /**
@@ -253,7 +257,7 @@ object read extends Function1[ReadablePath, String]{
   object bytes extends Function1[ReadablePath, Array[Byte]]{
     def apply(arg: ReadablePath): Array[Byte] = {
       val out = new java.io.ByteArrayOutputStream()
-      val stream = arg.toSource.getInputStream()
+      val stream = arg.getInputStream
       try Internals.transfer(stream, out)
       finally stream.close()
       out.toByteArray
@@ -342,7 +346,7 @@ object read extends Function1[ReadablePath, String]{
       def apply(arg: ReadablePath, charSet: Codec) = {
         new geny.Generator[String]{
           def generate(handleItem: String => Generator.Action) = {
-            val is = arg.toSource.getInputStream()
+            val is = arg.getInputStream
             val isr = new InputStreamReader(is)
             val buf = new BufferedReader(isr)
             var currentAction: Generator.Action = Generator.Continue
@@ -371,6 +375,4 @@ object read extends Function1[ReadablePath, String]{
       }
     }
   }
-
-  def getInputStream(p: Source) = p.getInputStream()
 }

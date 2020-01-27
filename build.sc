@@ -5,7 +5,7 @@ object TestUtil {
 }
 
 trait OsLibModule extends CrossScalaModule with PublishModule{
-  def publishVersion = "0.4.2"
+  def publishVersion = "0.6.3"
   def pomSettings = PomSettings(
     description = artifactName(),
     organization = "com.lihaoyi",
@@ -38,8 +38,8 @@ trait OsLibModule extends CrossScalaModule with PublishModule{
       else "0.1.8"
 
     def ivyDeps = Agg(
-      ivy"com.lihaoyi::utest::0.7.1",
-      ivy"com.lihaoyi::sourcecode::$sourcecodeVersion"
+      ivy"com.lihaoyi::utest::0.7.3",
+      ivy"com.lihaoyi::sourcecode::0.2.0"
     )
 
     def testFrameworks = Seq("utest.runner.Framework")
@@ -66,9 +66,9 @@ class OsModule(val crossScalaVersion: String) extends OsLibModule{
 
   def ivyDeps =
     if (crossScalaVersion.startsWith("2"))
-      Agg(ivy"com.lihaoyi::geny:0.1.8")
+      Agg(ivy"com.lihaoyi::geny:0.5.0")
     else
-      Agg(ivy"com.lihaoyi:geny_2.13:0.1.8")
+      Agg(ivy"com.lihaoyi:geny_2.13:0.5.0")
 
   object test extends OsLibTestModule
 }
