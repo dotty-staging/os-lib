@@ -38,8 +38,8 @@ trait OsLibModule extends CrossScalaModule with PublishModule{
       else "0.1.8"
 
     def ivyDeps = Agg(
-      ivy"com.lihaoyi::utest::0.7.3",
-      ivy"com.lihaoyi::sourcecode::0.2.0"
+      ivy"com.lihaoyi::utest::0.7.4",
+      ivy"com.lihaoyi::sourcecode::0.2.1"
     )
 
     def testFrameworks = Seq("utest.runner.Framework")
