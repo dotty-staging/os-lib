@@ -32,6 +32,15 @@ trait OsLibModule extends CrossScalaModule with PublishModule{
     if (crossScalaVersion.startsWith("2")) Agg(ivy"com.lihaoyi::acyclic:0.2.0")
     else Agg.empty[mill.scalalib.Dep]
 
+  override def docJar =
+    if (crossScalaVersion.startsWith("2")) super.docJar
+    else T {
+      val outDir = T.ctx().dest
+      val javadocDir = outDir / 'javadoc
+      _root_.os.makeDir.all(javadocDir)
+      mill.api.Result.Success(mill.modules.Jvm.createJar(Agg(javadocDir))(outDir))
+    }
+
   trait OsLibTestModule extends Tests{
     val sourcecodeVersion =
       if (crossScalaVersion.startsWith("2")) "0.1.7"
