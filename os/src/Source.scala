@@ -1,8 +1,13 @@
 package os
 
 import scala.language.implicitConversions
-
-import java.io.{ByteArrayInputStream, InputStream, OutputStream, SequenceInputStream}
+import java.io.{
+  ByteArrayInputStream,
+  InputStream,
+  OutputStream,
+  SequenceInputStream,
+  BufferedOutputStream
+}
 import java.nio.channels.{
   Channels,
   FileChannel,
@@ -18,6 +23,7 @@ import java.nio.channels.{
   * strings, byte arrays, inputstreams, channels or file paths
   */
 trait Source extends geny.Writable{
+  override def httpContentType = Some("application/octet-stream")
   def getHandle(): Either[geny.Writable, SeekableByteChannel]
   def writeBytesTo(out: java.io.OutputStream) = getHandle() match{
     case Left(bs) => bs.writeBytesTo(out)
@@ -31,14 +37,18 @@ trait Source extends geny.Writable{
       Internals.transfer(inChannel, out)
   }
   def writeBytesTo(out: WritableByteChannel) = getHandle() match{
-    case Left(bs) => bs.writeBytesTo(Channels.newOutputStream(out))
-
+    case Left(bs) => 
+      val os = new BufferedOutputStream(Channels.newOutputStream(out))
+      bs.writeBytesTo(os)
+      os.flush()
     case Right(channel) =>
       (channel, out) match {
         case (src: FileChannel, dest) => src.transferTo(0, Long.MaxValue, dest)
         case (src, dest: FileChannel) => dest.transferFrom(dest, 0, Long.MaxValue)
         case (src, dest) =>
-          Internals.transfer(Channels.newInputStream(src), Channels.newOutputStream(dest))
+          val os = new BufferedOutputStream(Channels.newOutputStream(dest))
+          Internals.transfer(Channels.newInputStream(src), os)
+          os.flush()
       }
 
   }

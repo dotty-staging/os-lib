@@ -12,22 +12,22 @@ object PathTests extends TestSuite{
       test("Transformers"){
         if(Unix()){
           assert(
-            // ammonite.Path to java.nio.file.Path
+            // os.Path to java.nio.file.Path
             (root/"omg").wrapped == Paths.get("/omg"),
 
-            // java.nio.file.Path to ammonite.Path
+            // java.nio.file.Path to os.Path
             root/"omg" == Path(Paths.get("/omg")),
             rel/"omg" == RelPath(Paths.get("omg")),
             sub/"omg" == SubPath(Paths.get("omg")),
 
-            // ammonite.Path to String
+            // os.Path to String
             (root/"omg").toString == "/omg",
             (rel/"omg").toString == "omg",
             (sub/"omg").toString == "omg",
             (up/"omg").toString == "../omg",
             (up/up/"omg").toString == "../../omg",
 
-            // String to ammonite.Path
+            // String to os.Path
             root/"omg" == Path("/omg"),
             rel/"omg" == RelPath("omg"),
             sub/"omg" == SubPath("omg")
@@ -415,40 +415,6 @@ object PathTests extends TestSuite{
           val tooManyUpsStr = "/hello/../.."
           intercept[PathError.AbsolutePathOutsideRoot.type]{
             Path(tooManyUpsStr)
-          }
-        }
-      }
-      test("symlinks"){
-
-        val names = Seq("test123", "test124", "test125", "test126")
-        val twd = temp.dir()
-
-        test("nestedSymlinks"){
-          if(Unix()) {
-            names.foreach(p => os.remove.all(twd/p))
-            os.makeDir.all(twd/"test123")
-            os.symlink(twd/"test124", twd/"test123")
-            os.symlink(twd/"test125", twd/"test124")
-            os.symlink(twd/"test126", twd/"test125")
-            assert(followLink(twd/"test126").get == followLink(twd/"test123").get)
-            names.foreach(p => os.remove(twd/p))
-            names.foreach(p => assert(!exists(twd/p)))
-          }
-        }
-
-        test("danglingSymlink"){
-          if(Unix()) {
-            names.foreach(p => os.remove.all(twd/p))
-            os.makeDir.all(twd/"test123")
-            os.symlink(twd/"test124", twd/"test123")
-            os.symlink(twd/"test125", twd/"test124")
-            os.symlink(twd/"test126", twd/"test125")
-            os.remove(twd / "test123")
-            assert(followLink(twd / "test126").isEmpty)
-            names.foreach(p => os.remove.all(twd / p))
-            names.foreach(p => assert(!exists(twd / p)))
-            names.foreach(p => os.remove.all(twd/p))
-            names.foreach(p => assert(!exists(twd/p)))
           }
         }
       }
