@@ -15,6 +15,15 @@ object os extends Module {
     object test extends Tests with OsLibTestModule{
       def platformSegment = "jvm"
     }
+
+    override def docJar =
+      if (crossScalaVersion.startsWith("2")) super.docJar
+      else T {
+        val outDir = T.ctx().dest
+        val javadocDir = outDir / 'javadoc
+        _root_.os.makeDir.all(javadocDir)
+        mill.api.Result.Success(mill.modules.Jvm.createJar(Agg(javadocDir))(outDir))
+      }
   }
   object native extends Cross[OsNativeModule](crossNativeVersions:_*)
 
