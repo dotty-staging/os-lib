@@ -77,7 +77,7 @@ object os extends Module {
 
 trait OsLibModule extends CrossScalaModule with PublishModule{
   def isDotty = crossScalaVersion.startsWith("0") || crossScalaVersion.startsWith("3")
-  def publishVersion = VcsVersion.vcsState().format()
+  def publishVersion = "cb-SNAPSHOT" // hardcoded version for the community build
   def pomSettings = PomSettings(
     description = artifactName(),
     organization = "com.lihaoyi",
@@ -116,8 +116,8 @@ trait OsLibModule extends CrossScalaModule with PublishModule{
 
 trait OsLibTestModule extends ScalaModule with TestModule{
   def ivyDeps = Agg(
-    ivy"com.lihaoyi::utest::0.7.7",
-    ivy"com.lihaoyi::sourcecode::0.2.3"
+    ivy"com.lihaoyi::utest::cb-SNAPSHOT",
+    ivy"com.lihaoyi::sourcecode::cb-SNAPSHOT"
   )
 
   def platformSegment: String
@@ -134,9 +134,8 @@ trait OsModule extends OsLibModule{
   def artifactName = "os-lib"
 
   def ivyDeps = Agg(
-    ivy"com.lihaoyi::geny::0.6.5"
+    ivy"com.lihaoyi::geny::cb-SNAPSHOT"
   )
-  def scalacOptions = Seq("-release", "8")
 }
 
 trait WatchModule extends OsLibModule{
