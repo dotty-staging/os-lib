@@ -249,13 +249,13 @@ object PathTests extends TestSuite{
       test("InvalidChars"){
         val ex = intercept[PathError.InvalidSegment](rel/"src"/"Main/.scala")
 
-        val PathError.InvalidSegment("Main/.scala", msg1) = ex
+        val PathError.InvalidSegment("Main/.scala", msg1) = ex: @unchecked
 
         assert(msg1.contains("[/] is not a valid character to appear in a path segment"))
 
         val ex2 = intercept[PathError.InvalidSegment](root/"hello"/".."/"world")
 
-        val PathError.InvalidSegment("..", msg2) = ex2
+        val PathError.InvalidSegment("..", msg2) = ex2: @unchecked
 
         assert(msg2.contains("use the `up` segment from `os.up`"))
       }
@@ -294,7 +294,7 @@ object PathTests extends TestSuite{
     }
     test("Extractors"){
       test("paths"){
-        val a/b/c/d/"omg" = pwd/"A"/"B"/"C"/"D"/"omg"
+        val a/b/c/d/"omg" = pwd/"A"/"B"/"C"/"D"/"omg": @unchecked
         assert(a == pwd/"A")
         assert(b == "B")
         assert(c == "C")
