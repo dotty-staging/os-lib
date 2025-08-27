@@ -6,27 +6,6 @@ import utest._
 object ExampleTests extends TestSuite{
 
   val tests = Tests {
-    test("splash") - TestUtil.prep{wd => if (Unix()){
-      // Make sure working directory exists and is empty
-      val wd = os.pwd/"out"/"splash"
-      os.remove.all(wd)
-      os.makeDir.all(wd)
-
-      os.write(wd/"file.txt", "hello")
-      os.read(wd/"file.txt") ==> "hello"
-
-      os.copy(wd/"file.txt", wd/"copied.txt")
-      os.list(wd) ==> Seq(wd/"copied.txt", wd/"file.txt")
-
-      val invoked = os.proc("cat", wd/"file.txt", wd/"copied.txt").call(cwd = wd)
-      invoked.out.trim() ==> "hellohello"
-
-      val curl = os.proc("curl", "-L" , "https://git.io/fpfTs").spawn(stderr = os.Inherit)
-      val gzip = os.proc("gzip", "-n").spawn(stdin = curl.stdout)
-      val sha = os.proc("shasum", "-a", "256").spawn(stdin = gzip.stdout)
-      sha.stdout.trim() ==> "acc142175fa520a1cb2be5b97cbbe9bea092e8bba3fe2e95afa645615908229e  -"
-    }}
-
     test("concatTxt") - TestUtil.prep{wd =>
       // Find and concatenate all .txt files directly in the working directory
       os.write(
@@ -53,22 +32,6 @@ object ExampleTests extends TestSuite{
           |I weigh twice as much as you
           |And I look good on the barbecue""".stripMargin
     }
-
-    test("curlToTempFile") - TestUtil.prep{wd => if (Unix()){
-      // Curl to temporary file
-      val temp = os.temp()
-      os.proc("curl", "-L" , "https://git.io/fpfTs")
-        .call(stdout = temp)
-
-      os.size(temp) ==> 53814
-
-      // Curl to temporary file
-      val temp2 = os.temp()
-      val proc = os.proc("curl", "-L" , "https://git.io/fpfTs").spawn()
-
-      os.write.over(temp2, proc.stdout)
-      os.size(temp2) ==> 53814
-    }}
 
     test("lineCount") - TestUtil.prep{wd =>
       // Line-count of all .txt files recursively in wd

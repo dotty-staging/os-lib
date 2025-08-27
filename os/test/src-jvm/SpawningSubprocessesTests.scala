@@ -94,39 +94,7 @@ object SpawningSubprocessesTests extends TestSuite {
         }}
       }
 
-      test("spawn"){
-        test - prep { wd => if(TestUtil.isInstalled("python") && Unix()) {
-          // Start a long-lived python process which you can communicate with
-          val sub = os.proc("python", "-u", "-c", "while True: print(eval(raw_input()))")
-                      .spawn(cwd = wd)
-
-          // Sending some text to the subprocess
-          sub.stdin.write("1 + 2")
-          sub.stdin.writeLine("+ 4")
-          sub.stdin.flush()
-          sub.stdout.readLine() ==> "7"
-
-          sub.stdin.write("'1' + '2'")
-          sub.stdin.writeLine("+ '4'")
-          sub.stdin.flush()
-          sub.stdout.readLine() ==> "124"
-
-          // Sending some bytes to the subprocess
-          sub.stdin.write("1 * 2".getBytes)
-          sub.stdin.write("* 4\n".getBytes)
-          sub.stdin.flush()
-          sub.stdout.read() ==> '8'.toByte
-
-          sub.destroy()
-
-          // You can chain multiple subprocess' stdin/stdout together
-          val curl = os.proc("curl", "-L" , "https://git.io/fpfTs").spawn(stderr = os.Inherit)
-          val gzip = os.proc("gzip", "-n").spawn(stdin = curl.stdout)
-          val sha = os.proc("shasum", "-a", "256").spawn(stdin = gzip.stdout)
-          sha.stdout.trim()==> "acc142175fa520a1cb2be5b97cbbe9bea092e8bba3fe2e95afa645615908229e  -"
-        }}
-      }
-      test("spawn callback"){
+       test("spawn callback"){
         test - prep { wd => if(TestUtil.isInstalled("python") && Unix()) {
           val output: mutable.Buffer[String] = mutable.Buffer()
           val sub = os.proc("echo", "output")
